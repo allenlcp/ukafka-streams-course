@@ -15,7 +15,7 @@ public class WordCountApp {
     public static void main(String[] args) {
         Properties config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-application");
-        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:19092");
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
@@ -42,12 +42,18 @@ public class WordCountApp {
         wordCounts.to(Serdes.String(), Serdes.Long(), "word-count-output");
 
         KafkaStreams streams = new KafkaStreams(builder, config);
+        streams.cleanUp();
         streams.start();
 
 
 
         // shutdown hook to correctly close the streams application
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            streams.close();
+            // Optionally, you can call cleanUp() here if required
+            streams.cleanUp();
+        }));
+
 
         // Update:
         // print the topology every 10 seconds for learning purposes

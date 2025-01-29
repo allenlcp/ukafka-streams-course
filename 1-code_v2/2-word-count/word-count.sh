@@ -29,3 +29,9 @@ java -jar <your jar here>.jar
 
 # list all topics that we have in Kafka (so we can observe the internal topics)
 bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+
+kafka-streams-application-reset.sh \
+    --application-id wordcount-application \
+    --input-topics word-count-input \
+    --bootstrap-server localhost:9092
